@@ -6,8 +6,8 @@ const cors = require('cors');
 const fetch = require('isomorphic-fetch');
 
 const app = express();
-const stripe = Stripe('YOUR_STRIPE_SECRET_KEY');
-const azureConnectionString = 'YOUR_AZURE_STORAGE_CONNECTION_STRING';
+const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+const azureConnectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const blobServiceClient = BlobServiceClient.fromConnectionString(azureConnectionString);
 const containerClient = blobServiceClient.getContainerClient('photos');
 
@@ -18,12 +18,12 @@ app.use(express.raw({ type: 'multipart/form-data', limit: '10mb' }));
 const graphClient = Client.init({
     authProvider: async (done) => {
         try {
-            const response = await fetch('https://login.microsoftonline.com/YOUR_TENANT_ID/oauth2/v2.0/token', {
+            const response = await fetch(`https://login.microsoftonline.com/${process.env.TENANT_ID}/oauth2/v2.0/token`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: new URLSearchParams({
-                    client_id: 'YOUR_CLIENT_ID',
-                    client_secret: 'YOUR_CLIENT_SECRET',
+                    client_id: process.env.CLIENT_ID,
+                    client_secret: process.env.CLIENT_SECRET,
                     scope: 'https://graph.microsoft.com/.default',
                     grant_type: 'client_credentials'
                 })
